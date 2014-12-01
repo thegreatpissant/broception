@@ -1,0 +1,3 @@
+[submodule "aux/soapybrain"]
+	path = aux/soapybrain
+	url = https://github.com/thegreatpissant/soapybrain.git
