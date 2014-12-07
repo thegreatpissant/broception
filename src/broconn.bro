@@ -11,32 +11,26 @@ redef Communication::listen_ssl = F;
 #redef ssl_private_key      = "<path>/bro.pem";
 
 redef Communication::nodes += {
-	["broconn"] = [$host = 127.0.0.1, $connect=F, $ssl=F]
+    ["broconn"] = [$host = 127.0.0.1, $connect=F, $ssl=F]
 };
 
 function services_to_string(ss: string_set): string
 {
-	local result = "";
+    local result = "";
 
-	for (s in ss)
-	    result = fmt("%s %s", result, s);
-	
-	return result;
+    for (s in ss)
+        result = fmt("%s %s", result, s);
+
+    return result;
 }
 
 event new_connection(c: connection)
 {
-	print fmt("new_connection: %s, services:%s",
-	          id_string(c$id), services_to_string(c$service));
+    print fmt("new_connection: %s, services:%s",
+              id_string(c$id), services_to_string(c$service));
 }
 
-event connection_finished(c: connection)
+event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
 {
-	print fmt("connection_finished: %s, services:%s",
-	          id_string(c$id), services_to_string(c$service));
-}
-
-event remote_connection_handshake_done (p: event_peer)
-{
-    print fmt("connection handshake finished");
+print fmt("http request");
 }
