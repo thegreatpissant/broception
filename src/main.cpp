@@ -16,7 +16,7 @@ void update_stats();
 BroConn *bc;
 int queue_length = 0;
 int queue_length_max = 0;
-int event_count = 0;
+uint64 event_count = 0;
 
 //  callback function signature
 //  typedef void (*BroEventFunc) (BroConn *bc, void *user_data, ...);
@@ -24,12 +24,15 @@ int event_count = 0;
 static void remote_conn_cb(BroConn *bc, void *user_data, BroRecord *conn)
 {
     printw("new_connection\n");
-    event_count++;
 }
 static void http_request_cb(BroConn *bc, void *user_data, BroRecord *conn)
 {
     printw("http_request\n");
-    event_count++;
+}
+
+static void connection_count_cb( BroConn *bc, void *user_data, uint64 *count)
+{
+    event_count = *count;
 }
 
 int main()
@@ -39,21 +42,22 @@ int main()
     bro_init(NULL);
 
     //  Turn on debuging
-    bro_debug_calltrace = 1;
-    bro_debug_messages = 1;
+    bro_debug_calltrace = 0;
+    bro_debug_messages = 0;
 
     //  Where our server lives
     string host_str = "localhost:47758";
 
     // Setup the connection
-    if (!(bc = bro_conn_new_str(host_str.c_str(), BRO_CFLAG_RECONNECT | BRO_CFLAG_ALWAYS_QUEUE))) {
+    if (!(bc = bro_conn_new_str(host_str.c_str(), BRO_CFLAG_CACHE|BRO_CFLAG_RECONNECT | BRO_CFLAG_ALWAYS_QUEUE))) {
         cerr << "Requesting new bro connection failed" << endl;
         exit(EXIT_FAILURE);
     }
 
-    //  Setup our callback for connection events 
-    bro_event_registry_add(bc, "http_request", (BroEventFunc)http_request_cb, NULL);
-    bro_event_registry_add(bc, "new_connection", (BroEventFunc)remote_conn_cb, NULL);
+    //  Setup our callback for connection events
+    //    bro_event_registry_add(bc, "http_request", (BroEventFunc)http_request_cb, NULL);
+    //    bro_event_registry_add(bc, "new_connection", (BroEventFunc)remote_conn_cb, NULL);
+    bro_event_registry_add(bc, "send_count", (BroEventFunc)connection_count_cb, NULL);
 
     //  Check the connection is valid
     if (!bro_conn_connect(bc)) {
@@ -83,6 +87,15 @@ int main()
       char keycommand = getch ();
       if (keycommand == 'q')
         quit = true;
+      else if (keycommand == 'c') {
+          BroEvent *ev;
+          if ( !( ev = bro_event_new("count_update")))
+          {
+              cerr << "Unable to create new event" << endl;
+          }
+          bro_event_send(bc, ev);
+          bro_event_free(ev);
+      }
 
     } while (!sleep(1) && !quit);
     endwin();

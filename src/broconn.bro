@@ -11,8 +11,10 @@ redef Communication::listen_ssl = F;
 #redef ssl_private_key      = "<path>/bro.pem";
 
 redef Communication::nodes += {
-    ["broconn"] = [$host = 127.0.0.1, $connect=F, $ssl=F]
+    ["broconn"] = [$host = 127.0.0.1, $events = /count_update/, $connect=F, $ssl=F]
 };
+
+global connection_count : count;
 
 function services_to_string(ss: string_set): string
 {
@@ -24,13 +26,26 @@ function services_to_string(ss: string_set): string
     return result;
 }
 
+global send_count: event( cc: count);
+global count_update: event( );
+
+event bro_init () {
+	connection_count = 0;
+}
+
 event new_connection(c: connection)
 {
     print fmt("new_connection: %s, services:%s",
               id_string(c$id), services_to_string(c$service));
+   connection_count += 1;
+   event send_count (connection_count);
 }
 
-event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
-{
-print fmt("http request");
+event send_count( cc: count ) {
+	print fmt ("Connection Count %d", cc );
+}
+
+
+event count_update() {
+	event send_count (connection_count);
 }
