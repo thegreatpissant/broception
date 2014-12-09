@@ -5,7 +5,6 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 #  Add in the bro scripts
 file (GLOB RES_FILES ./src/*.bro)
-file (GLOB RES_FILES shaders/*.frag shaders/*.vert shaders/*.glsl)
 
 #execute_process(COMMAND broccoli-config --libs OUTPUT_VARIABLE BROCCOLI_LIBS)
 #execute_process(COMMAND broccoli-config --cflags OUTPUT_VARIABLE BROCCOLI_CFLAGS)
