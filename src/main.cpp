@@ -254,6 +254,7 @@ void GenerateShaders( ) {
 void GlutReshape( int newWidth, int newHeight )
 {
     display->Reshape(newWidth, newHeight);
+    glViewport(0,0, display->getWidth(), display->getHeight());
 }
 
 
@@ -261,6 +262,7 @@ void GlutDisplay( )
 {
     glClearColor (1.0f, 0.0f, 1.0f, 1.0f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glm::mat4 r_matrix =
             glm::rotate( glm::mat4 (), camera->getOrientation()[0], glm::vec3( 1.0f, 0.0f, 0.0f ) );
     r_matrix =
