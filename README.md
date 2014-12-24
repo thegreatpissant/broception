@@ -3,7 +3,11 @@ broception
 A network visualizer using bro's broccoli library and my soapybrain engine.  Notice I did not say traffic.
 
 
+Pull down the repo
+
+```
 git clone --recursive https://github.com/thegreatpissant/broception.git
+```
 
 
 This set of commands will set up the env after the build
