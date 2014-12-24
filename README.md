@@ -25,11 +25,15 @@ ln -s  ../../aux/soapybrain/shaders shaders
 Now run bro with the src/broconn.bro script
 
 ```
+cd broception/src
 bro -i <your_interface> broconn.bro
 ```
 
 Then run broception from the build/src dir
 
 ```
+cd broception/build/src
 ./broception
 ```
+
+Refresh your web page
