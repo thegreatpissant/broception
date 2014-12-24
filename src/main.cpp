@@ -110,14 +110,15 @@ static void http_request_cb(BroConn *bc, void *user_data, BroRecord *conn)
 }
 
 int gi = 0;
+GLfloat gf = 10.0f;
 static void connection_count_cb( BroConn *bc, void *user_data, uint64 *count)
 {
   event_count = *count;
   GLfloat a = 0.0f;
-  shared_ptr<Actor> actor = shared_ptr<Actor>{ new Actor(event_count/10.0f, 0.0f, /*a*/0.0f, a, 0.0f, 0.0f, 0 ) };
+  shared_ptr<Actor> actor = shared_ptr<Actor>{ new Actor(gf, 0.0f, /*a*/0.0f, a, 0.0f, 0.0f, 0 ) };
   actor->setShader(global_shader);
   scene_graph.push_back(actor);
-  cout << "event" << endl;
+  gf += 3.0f;
 }
 
 int main(int argc, char * argv[])
