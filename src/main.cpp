@@ -45,6 +45,7 @@ enum class queue_events {
     PITCH_DOWN,
     COLOR_CHANGE,
     MODEL_CHANGE,
+    RENDER_PRIMITIVE_CHANGE,
     APPLICATION_QUIT
 };
 
@@ -73,22 +74,24 @@ void GlutReshape( int newWidth, int newHeight );
 void GlutDisplay( );
 void GlutKeyboard( unsigned char key, int x, int y );
 void CleanupAndExit( );
-//  Models
+void update_stats();
+GLint UnmapRenderPrimitive ( int rp );
 void GenerateModels( );
-//  Entities
 void GenerateEntities( );
-//  Shaders
 void GenerateShaders( );
+
 //  Globalized user vars
 GLfloat strafe{ 1.0f }, height{ 0.0f }, depth{ -15.0f }, rotate{ 0.0f };
 float dir = 1.0f;
 float xpos = 2.0f;
 float ypos = 0.0f;
+GLint global_render_primitive = 0;
+GLint max_primitives = 3;
+GLint global_model_id = 0;
 
 
 
-//  Some function declerations
-void update_stats();
+
 
 //  Global state vars
 BroConn *bc;
@@ -261,7 +264,7 @@ void GlutReshape( int newWidth, int newHeight )
 
 void GlutDisplay( )
 {
-    glClearColor (1.0f, 0.0f, 1.0f, 1.0f);
+    glClearColor (0.5f, 0.5f, 0.5f, 1.0f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 r_matrix =
@@ -294,7 +297,7 @@ void GlutKeyboard( unsigned char key, int x, int y )
 {
     switch ( key ) {
     default:
-        break;
+      break;
     case 27:
     case 'q':
     case 'Q':
@@ -303,49 +306,53 @@ void GlutKeyboard( unsigned char key, int x, int y )
     case 'h':
     case 'H':
         gqueue.push( queue_events::YAW_LEFT );
-        break;
+      break;
     case 'l':
     case 'L':
         gqueue.push( queue_events::YAW_RIGHT );
-        break;
+      break;
     case 'a':
     case 'A':
         gqueue.push( queue_events::STRAFE_LEFT );
-        break;
+      break;
     case 'd':
     case 'D':
         gqueue.push( queue_events::STRAFE_RIGHT );
-        break;
+      break;
     case 's':
     case 'S':
         gqueue.push( queue_events::MOVE_BACKWARD );
-        break;
+      break;
     case 'w':
     case 'W':
         gqueue.push( queue_events::MOVE_FORWARD );
-        break;
+      break;
     case 'k':
     case 'K':
         gqueue.push( queue_events::MOVE_UP );
-        break;
+      break;
     case '-':
         gqueue.push( queue_events::PITCH_UP );
-        break;
+      break;
     case '+':
         gqueue.push( queue_events::PITCH_DOWN );
-        break;
+      break;
     case 'j':
     case 'J':
         gqueue.push( queue_events::MOVE_DOWN );
-        break;
+      break;
     case 'c':
     case 'C':
         gqueue.push( queue_events::COLOR_CHANGE );
-        break;
+      break;
     case 'm':
     case 'M':
         gqueue.push( queue_events::MODEL_CHANGE );
-        break;
+      break;
+    case 'r':
+    case 'R':
+        gqueue.push( queue_events::RENDER_PRIMITIVE_CHANGE );
+      break;
     }
 }
 
@@ -394,8 +401,18 @@ void GlutIdle( )
         case queue_events::COLOR_CHANGE:
             color = ( color >= 4 ? 1 : color + 1 );
             break;
+        case queue_events::RENDER_PRIMITIVE_CHANGE:
+            global_render_primitive += 1;
+            global_render_primitive %= max_primitives;
+            for ( int i = 0; i < renderer->models.size(); i++)
+              renderer->models[i]->renderPrimitive = UnmapRenderPrimitive(global_render_primitive);
+          break;
         case queue_events::MODEL_CHANGE:
-            break;
+            global_model_id += 1;
+            global_model_id %= renderer->models.size();
+            for (int i = 0; i < scene_graph.size(); i++)
+              scene_graph[i]->model_id = global_model_id;
+          break;
         case queue_events::APPLICATION_QUIT:
             CleanupAndExit( );
         }
@@ -438,7 +455,7 @@ void GenerateModels( ) {
                 z = 0.0f;
         }
         tmp->name = "ex15_" + to_string( ext++ );
-        tmp->renderPrimitive = GL_POINTS;
+        tmp->renderPrimitive = UnmapRenderPrimitive(global_render_primitive);
         tmp->setup_render_model( );
         renderer->add_model( tmp );
     }
@@ -456,4 +473,17 @@ void GenerateEntities( ) {
     }
     //  Selected Entity
     selected = camera;
+}
+
+int UnmapRenderPrimitive (int rp)
+{
+    switch (rp) {
+    case 0:
+        return GL_POINTS;
+    case 1:
+        return GL_LINES;
+    case 2:
+        return GL_TRIANGLES;
+    }
+    return GL_POINTS;
 }
