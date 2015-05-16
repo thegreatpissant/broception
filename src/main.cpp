@@ -435,6 +435,7 @@ void GenerateModels( ) {
 
     //  Generate Torus
     tmpt = shared_ptr<VBOTorus> { new VBOTorus (0.7f, 0.3f, 50, 50) };
+    tmpt->renderPrimitive = UnmapRenderPrimitive(global_render_primitive);
     tmpt->name = "vbo_torus";
     renderer->add_model( tmpt );
 
