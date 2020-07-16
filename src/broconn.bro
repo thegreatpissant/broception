@@ -47,5 +47,5 @@ event send_count( cc: count ) {
 
 
 event count_update() {
-	event send_count (connection_count);
+	print fmt ("Recieved count_update event" );
 }

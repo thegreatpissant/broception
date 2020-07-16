@@ -1,3 +1,3 @@
-[submodule "aux/soapybrain"]
-	path = aux/soapybrain
+[submodule "thridparty/soapybrain"]
+	path = thirdparty/soapybrain
 	url = https://github.com/thegreatpissant/soapybrain.git

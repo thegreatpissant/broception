@@ -122,6 +122,10 @@ static void connection_count_cb( BroConn *bc, void *user_data, uint64 *count)
   actor->setShader(global_shader);
   scene_graph.push_back(actor);
   gf += 3.0f;
+
+  BroEvent * rep = bro_event_new("count_updated");
+  bro_event_send(bc, rep);
+  //bro_event_free(rep);
 }
 
 int main(int argc, char * argv[])
@@ -135,7 +139,7 @@ int main(int argc, char * argv[])
     bro_debug_messages = 0;
 
     //  Where our server lives
-    string host_str = "localhost:47758";
+    string host_str = "10.0.1.4:47758";
 
     // Setup the connection
     if (!(bc = bro_conn_new_str(host_str.c_str(), BRO_CFLAG_CACHE|BRO_CFLAG_RECONNECT | BRO_CFLAG_ALWAYS_QUEUE))) {
